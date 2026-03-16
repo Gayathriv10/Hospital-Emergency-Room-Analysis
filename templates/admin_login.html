@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Login - PremiumCare{% endblock %}
+
+{% block nav_links %}
+<a href="/" class="nav-link">🏠 Home</a>
+<a href="/admin_dashboard" class="nav-link">Admin Dashboard</a>
+{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: center; align-items: center; min-height: 70vh;">
+    <div class="glass-panel" style="width: 100%; max-width: 400px;">
+        <div class="text-center mb-4">
+            <h2>Admin Secure Access</h2>
+            <p>Please enter your credentials to manage hospital operations.</p>
+        </div>
+
+        {% if error %}
+        <div class="alert alert-danger" role="alert">
+            ❌ {{ error }}
+        </div>
+        {% endif %}
+
+        <form method="POST" action="/admin_login">
+            <div class="form-group">
+                <label for="username">Administrator ID</label>
+                <input type="text" id="username" name="username" placeholder="Enter admin username" required autofocus>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Security Protocol</label>
+                <input type="password" id="password" name="password" placeholder="Enter admin password" required>
+            </div>
+            
+            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">
+                Authenticate Access ➔
+            </button>
+        </form>
+        
+        <div class="text-center mt-3">
+            <a href="/" class="nav-link" style="font-size: 0.9rem;">← Return Home</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

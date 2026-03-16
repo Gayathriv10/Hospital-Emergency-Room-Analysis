@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block title %}Doctor Wait Times - PremiumCare{% endblock %}
+
+{% block page_name %}Doctor Wait Times{% endblock %}
+
+{% block nav_links %}
+<a href="/" class="nav-link">🏠 Home</a>
+<a href="/doctor_waitime" class="nav-link">⏱️ Doctor with Waitime</a>
+<a href="/" class="nav-link" style="color: #ef4444;">🚪 Logout</a>
+{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <h2>Doctor Wait Times</h2>
+    <p>Current estimated wait times for our available specialists based on department averages.</p>
+</div>
+
+<div class="grid-3">
+    {% for doc in doctors %}
+    <div class="glass-panel text-center" style="padding: 2rem;">
+        <div class="stat-icon mx-auto mb-2" style="background: rgba(16, 185, 129, 0.2); color: #10b981; width:60px; height:60px; margin: 0 auto; display: flex; align-items: center; justify-content: center; border-radius: 50%; font-size: 2rem;">
+            👨‍⚕️
+        </div>
+        <h3 class="mt-2">{{ doc.doctor_name }}</h3>
+        <p style="color: #6b7280; font-weight: 500; margin-bottom: 0.5rem">{{ doc.specialization }}</p>
+        <p style="font-size: 0.9rem; margin-bottom: 1rem;">Department: {{ doc.department }}</p>
+
+        <div style="background: rgba(79, 70, 229, 0.1); padding: 1rem; border-radius: 12px; margin-top: 1rem;">
+            <p style="margin: 0; font-size: 0.9rem; color: #4f46e5;">Predicted Wait Time</p>
+            <h2 style="margin: 0; color: #4f46e5;">{{ "%.1f"|format(doc.predicted_wait) }} mins</h2>
+        </div>
+    </div>
+    {% else %}
+    <div style="grid-column: 1 / -1; text-align: center; padding: 3rem;">
+        <p>No doctors currently available or configured.</p>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

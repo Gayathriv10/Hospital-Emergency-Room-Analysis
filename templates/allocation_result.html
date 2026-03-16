@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block title %}Allocation Result - PremiumCare{% endblock %}
+
+{% block nav_links %}
+<a href="/" class="nav-link">🏠 Home</a>
+<a href="/patient_portal" class="nav-link">👤 Patient Portal</a>
+<a href="/" class="nav-link" style="color: #ef4444;">🚪 Logout</a>
+{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: center; align-items: center; min-height: 70vh;">
+    <div class="glass-panel text-center" style="width: 100%; max-width: 600px;">
+        
+        {% if is_emergency %}
+            <div class="mb-4">
+                <div style="font-size: 4rem;">🚨</div>
+                <h2 style="color: #ef4444;">EMERGENCY ALLOCATION</h2>
+            </div>
+            {% if alert_message %}
+            <div class="alert alert-danger" style="justify-content: center;">
+                {{ alert_message }}
+            </div>
+            {% endif %}
+        {% else %}
+            <div class="mb-4">
+                <div style="font-size: 4rem;">✅</div>
+                <h2>Registration Successful</h2>
+            </div>
+        {% endif %}
+
+        <div class="grid-2 mb-4 text-left">
+            <div style="background: rgba(255,255,255,0.05); padding: 1.5rem; border-radius: 8px;">
+                <h4 style="color: var(--text-muted); margin-bottom: 0.5rem;">Assigned Doctor</h4>
+                {% if doctor_status_msg == 'Not Available' %}
+                    <p style="font-size: 1.2rem; font-weight: bold; color: #fbbf24; margin: 0;">{{ assigned_doctor }}{% if doctor_specialization %} <span style="font-size: 0.9rem; color: #d1d5db;">({{ doctor_specialization }})</span>{% endif %}</p>
+                {% else %}
+                    <p style="font-size: 1.2rem; font-weight: bold; color: #10b981; margin: 0;">{{ assigned_doctor }}{% if doctor_specialization %} <span style="font-size: 0.9rem; color: #d1d5db;">({{ doctor_specialization }})</span>{% endif %}</p>
+                {% endif %}
+            </div>
+
+            <div style="background: rgba(255,255,255,0.05); padding: 1.5rem; border-radius: 8px;">
+                <h4 style="color: var(--text-muted); margin-bottom: 0.5rem;">Estimated Wait Time</h4>
+                {% if wait_time > 0 %}
+                    <p style="font-size: 1.2rem; font-weight: bold; color: #fca5a5; margin: 0;">~{{ wait_time }} mins</p>
+                {% else %}
+                    <p style="font-size: 1.2rem; font-weight: bold; color: #6ee7b7; margin: 0;">0 mins</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div>
+            <a href="/patient_portal" class="btn btn-primary" style="width: 100%;">
+                Return to Portal
+            </a>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

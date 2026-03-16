@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+
+{% block title %}All Patients - PremiumCare{% endblock %}
+
+{% block page_name %}All Patients{% endblock %}
+
+{% block nav_links %}
+<a href="/" class="nav-link">🏠 Home</a>
+<a href="/admin_dashboard" class="nav-link">📊 Dashboard</a>
+<a href="/doctor_assigned" class="nav-link">👨‍⚕️ Doctor Assigned</a>
+<a href="/all_patients" class="nav-link">🏥 All Patients</a>
+<a href="/waitlist" class="nav-link">⏳ Waitlist</a>
+<a href="/emergency_patients" class="nav-link">🚨 Emergency Patient Details</a>
+<a href="/admin_logout" class="nav-link" style="color:#ef4444;">🚪 Logout</a>
+{% endblock %}
+
+{% block content %}
+
+<div class="mb-4">
+    <h2>All Registered Patients</h2>
+    <p>Complete historical log of all patient visits and assignments.</p>
+</div>
+
+<div class="table-container">
+<table>
+
+<thead>
+<tr>
+<th>Admission Date</th>
+<th>Patient ID</th>
+<th>Patient Name</th>
+<th>Age</th>
+<th>Department</th>
+<th>Assigned Doctor</th>
+<th>Wait Time (min)</th>
+</tr>
+</thead>
+
+<tbody>
+
+{% for patient in patients %}
+
+<tr>
+<td>{{ patient.Patient_Admission_Date if patient.Patient_Admission_Date else 'N/A' }}</td>
+<td><strong>{{ patient.Patient_ID }}</strong></td>
+<td>{{ patient.Patient_First_Initial }} {{ patient.Patient_Last_Name }}</td>
+<td>{{ patient.Patient_Age }}</td>
+<td>{{ patient.Department_Referral }}</td>
+
+<td>
+{% if patient.doctor_name %}
+<span class="status-badge status-available">
+{{ patient.doctor_name }}
+</span>
+{% else %}
+<span class="status-badge status-busy">
+Pending
+</span>
+{% endif %}
+</td>
+
+<td>
+<strong>
+{{ "%.1f"|format(patient.Patient_Waittime) if patient.Patient_Waittime else '0.0' }}
+</strong>
+</td>
+
+</tr>
+
+{% else %}
+
+<tr>
+<td colspan="7" style="padding:2rem;text-align:center;">
+No patients found.
+</td>
+</tr>
+
+{% endfor %}
+
+</tbody>
+</table>
+</div>
+
+
+
+
+
+<div class="mt-4 text-center">
+<a href="/admin_dashboard" class="btn btn-outline">
+Back to Dashboard
+</a>
+</div>
+
+{% endblock %}

@@ -1,0 +1,241 @@
+{% extends 'base.html' %}
+
+{% block title %}Smart Dashboard - PremiumCare{% endblock %}
+
+{% block page_name %}Smart Dashboard{% endblock %}
+
+{% block nav_links %}
+<a href="/" class="nav-link">🏠 Home</a>
+<a href="/smart_dashboard" class="nav-link">📊 Dashboard</a>
+{% endblock %}
+
+{% block content %}
+
+<div class="mb-4">
+    <h2>Smart Insights Dashboard</h2>
+    <p>Predictive analytics and real-time hospital resource management.</p>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+
+<style>
+    .grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 30px;
+        margin-top: 20px;
+    }
+
+    .chart-container {
+        background: white;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+        height: 420px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+    }
+
+    .chart-container h3 {
+        margin-bottom: 10px;
+        font-size: 17px;
+        text-align: center;
+    }
+
+    .chart-container canvas {
+        max-width: 320px !important;
+        max-height: 280px !important;
+    }
+</style>
+
+<div class="grid-2">
+
+    <div class="chart-container">
+        <h3>Patient Distribution by Department</h3>
+        <canvas id="deptChart"></canvas>
+    </div>
+
+    <div class="chart-container">
+        <h3>Average Wait Time per Department</h3>
+        <canvas id="waitChart"></canvas>
+    </div>
+
+    <div class="chart-container">
+        <h3>Emergency vs Standard Admissions</h3>
+        <canvas id="admitChart"></canvas>
+    </div>
+
+    <div class="chart-container">
+        <h3>Patient Satisfaction Scores</h3>
+        <canvas id="satChart"></canvas>
+    </div>
+
+    <div class="chart-container">
+        <h3>Doctor Availability Status</h3>
+        <canvas id="doctorChart"></canvas>
+    </div>
+
+    <div class="chart-container">
+        <h3>Patient Age Group Distribution</h3>
+        <canvas id="ageChart"></canvas>
+    </div>
+
+</div>
+
+<script>
+
+    document.addEventListener("DOMContentLoaded", function () {
+
+        Chart.register(ChartDataLabels);
+
+        const colors = [
+            'rgb(255,99,132)',
+            'rgb(54,162,235)',
+            'rgb(255,205,86)',
+            'rgb(75,192,192)',
+            'rgb(153,102,255)',
+            'rgb(255,159,64)'
+        ];
+
+        const deptLabels = JSON.parse('{{ departments|tojson|safe }}');
+        const deptCounts = JSON.parse('{{ dept_counts|tojson|safe }}');
+
+        const waitLabels = JSON.parse('{{ wait_departments|tojson|safe }}');
+        const waitAvgs = JSON.parse('{{ wait_avgs|tojson|safe }}');
+
+        const admitLabels = JSON.parse('{{ admit_labels|tojson|safe }}');
+        const admitCounts = JSON.parse('{{ admit_counts|tojson|safe }}');
+
+        const satLabels = JSON.parse('{{ sat_labels|tojson|safe }}');
+        const satCounts = JSON.parse('{{ sat_counts|tojson|safe }}');
+
+        const doctorLabels = ["Available", "Busy"];
+        const doctorCounts = [12, 8];
+
+        const ageLabels = ["0-18", "19-35", "36-50", "51-65", "65+"];
+        const ageCounts = [15, 40, 30, 20, 10];
+
+        function percentage(value, data) {
+            let total = data.reduce((a, b) => a + b, 0);
+            return ((value / total) * 100).toFixed(1) + "%";
+        }
+
+        new Chart(document.getElementById("deptChart"), {
+            type: "pie",
+            data: {
+                labels: deptLabels,
+                datasets: [{
+                    data: deptCounts,
+                    backgroundColor: colors
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    datalabels: {
+                        color: "#fff",
+                        formatter: (value) => percentage(value, deptCounts)
+                    }
+                }
+            }
+        });
+
+        new Chart(document.getElementById("waitChart"), {
+            type: "bar",
+            data: {
+                labels: waitLabels,
+                datasets: [{
+                    label: "Wait Time (mins)",
+                    data: waitAvgs,
+                    backgroundColor: "rgba(79,70,229,0.6)"
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: { y: { beginAtZero: true } }
+            }
+        });
+
+        new Chart(document.getElementById("admitChart"), {
+            type: "doughnut",
+            data: {
+                labels: admitLabels,
+                datasets: [{
+                    data: admitCounts,
+                    backgroundColor: ['#ef4444', '#10b981']
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    datalabels: {
+                        color: "#fff",
+                        formatter: (value) => percentage(value, admitCounts)
+                    }
+                }
+            }
+        });
+
+        new Chart(document.getElementById("satChart"), {
+            type: "line",
+            data: {
+                labels: satLabels,
+                datasets: [{
+                    label: "Ratings",
+                    data: satCounts,
+                    borderColor: "#38bdf8",
+                    backgroundColor: "rgba(56,189,248,0.2)",
+                    fill: true,
+                    tension: 0.3
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: { y: { beginAtZero: true } }
+            }
+        });
+
+        new Chart(document.getElementById("doctorChart"), {
+            type: "pie",
+            data: {
+                labels: doctorLabels,
+                datasets: [{
+                    data: doctorCounts,
+                    backgroundColor: ['#22c55e', '#f97316']
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    datalabels: {
+                        color: "#fff",
+                        formatter: (value) => percentage(value, doctorCounts)
+                    }
+                }
+            }
+        });
+
+        new Chart(document.getElementById("ageChart"), {
+            type: "bar",
+            data: {
+                labels: ageLabels,
+                datasets: [{
+                    label: "Patients",
+                    data: ageCounts,
+                    backgroundColor: "#6366f1"
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: { y: { beginAtZero: true } }
+            }
+        });
+
+    });
+
+</script>
+
+{% endblock %}

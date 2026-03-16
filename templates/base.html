@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Hospital System{% endblock %}</title>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <a href="/" class="nav-brand">
+            <span style="font-size: 1.8rem; color: #3b82f6;">⛑️</span>
+            PremiumCare Hospital
+        </a>
+        <div class="nav-links">
+            <span class="nav-link" style="color: #9ca3af; pointer-events: none; border-right: 1px solid #374151; padding-right: 15px; margin-right: 5px;">
+                {% block page_name %}Current Page{% endblock %}
+            </span>
+            {% block nav_links %}
+            <a href="/" class="nav-link">🏠 Home</a>
+            {% if session.get('admin_logged_in') %}
+                <a href="/admin_dashboard" class="nav-link">📊 Dashboard</a>
+                <a href="/doctor_status" class="nav-link">🩺 Doctors</a>
+                <a href="/all_patients" class="nav-link">🏥 All Patients</a>
+                <a href="/admin_logout" class="nav-link" style="color: #ef4444;">🚪 Logout</a>
+            {% else %}
+                <a href="/patient_portal" class="nav-link">👤 Patient Portal</a>
+                <a href="/admin_login" class="nav-link">🛡️ Admin Portal</a>
+            {% endif %}
+            {% endblock %}
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <div class="container">
+        {% block content %}{% endblock %}
+    </div>
+
+    <!-- Chatbot Widget -->
+    <div class="chatbot-widget">
+        <!-- Floating Button -->
+        <button id="chatbot-toggle" class="chatbot-btn" title="Chat with Assistant" aria-label="Open Chat">
+            💬
+        </button>
+
+        <!-- Chat Window -->
+        <div id="chatbot-window" class="chatbot-window">
+            <div class="chat-header">
+                <h3>💬 Assistant</h3>
+                <button id="close-chat" class="close-chat" aria-label="Close Chat">×</button>
+            </div>
+            
+            <div id="chat-body" class="chat-body">
+                <div class="chat-msg msg-bot">
+                    Hello! Welcome to PremiumCare Hospital. How can I assist you today?
+                </div>
+            </div>
+            
+            <form id="chat-form" class="chat-input" autocomplete="off">
+                <input type="text" id="chat-input-text" placeholder="Type a message..." required>
+                <button type="submit">➤</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

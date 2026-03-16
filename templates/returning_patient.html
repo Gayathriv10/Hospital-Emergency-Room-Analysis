@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block title %}Returning Patient - PremiumCare{% endblock %}
+
+{% block nav_links %}
+<a href="/" class="nav-link">🏠 Home</a>
+<a href="/patient_portal" class="nav-link">👤 Patient Portal</a>
+<a href="/" class="nav-link" style="color: #ef4444;">🚪 Logout</a>
+{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: center; align-items: center; min-height: 70vh;">
+    <div class="glass-panel" style="width: 100%; max-width: 400px;">
+        <div class="text-center mb-4">
+            <h2>Patient Lookup</h2>
+            <p>Enter your patient ID to view details and assigned doctor.</p>
+        </div>
+
+        {% if error %}
+        <div class="alert alert-danger" role="alert">
+            ❌ {{ error }}
+        </div>
+        {% endif %}
+
+        <form method="POST" action="/returning_patient">
+            <div class="form-group">
+                <label for="patient_id">Registered Patient ID</label>
+                <input type="number" id="patient_id" name="patient_id" placeholder="e.g., 1005" required autofocus>
+            </div>
+            
+            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">
+                Search Records ➔
+            </button>
+        </form>
+        
+        <div class="text-center mt-3">
+            <a href="/returning_patient_choice" class="nav-link" style="font-size: 0.9rem;">🔙 ← Go Back</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

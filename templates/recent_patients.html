@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block title %}Recent Patients - PremiumCare{% endblock %}
+
+{% block content %}
+<div class="mb-4 d-flex" style="display: flex; justify-content: space-between; align-items: center;">
+    <div>
+        <h2>Recently Visited Patients</h2>
+        <p>Real-time log of the latest 20 patient visits and wait times.</p>
+    </div>
+    <a href="/admin_dashboard" class="btn btn-outline">← Back to Dashboard</a>
+</div>
+
+<div class="glass-panel">
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Patient ID</th>
+                    <th>Initials / Name</th>
+                    <th>Department</th>
+                    <th>Visit Date</th>
+                    <th>Assigned Doctor</th>
+                    <th>Wait Time (mins)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in recent %}
+                <tr>
+                    <td><strong>    {{ p[0] }}</strong></td>
+                    <td>{{ p[1] }}. {{ p[2] }}</td>
+                    <td>{{ p[3] }}</td>
+                    <td>{{ p[4] }}</td>
+                    <td>
+                        {% if p[5] == 'None (Added to Waitlist)' or p[5] == 'None Available' %}
+                            <span style="color: #fbbf24;">{{ p[5] }}</span>
+                        {% else %}
+                            <span style="color: #34d399;">{{ p[5] }}</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if p[6] > 0 %}
+                            <span style="color: #fca5a5;">{{ p[6] }}</span>
+                        {% else %}
+                            <span style="color: #6ee7b7;">0</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="6" class="text-center">No recent patients found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

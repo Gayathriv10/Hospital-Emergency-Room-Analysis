@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block title %}Returning Patient - PremiumCare{% endblock %}
+
+{% block nav_links %}
+<a href="/" class="nav-link">🏠 Home</a>
+<a href="/patient_portal" class="nav-link">👤 Patient Portal</a>
+<a href="/" class="nav-link" style="color: #ef4444;">🚪 Logout</a>
+{% endblock %}
+
+{% block content %}
+<div style="height: 70vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;">
+    <h1 style="margin-bottom: 1rem;">Returning Patient Type</h1>
+    <p style="font-size: 1.2rem; max-width: 600px; margin-bottom: 3rem;">
+        Are you here for a routine check-up, or a new treatment plan?
+    </p>
+
+    <div class="grid-2" style="width: 100%; max-width: 800px;">
+        
+        <a href="/returning_patient" class="card-link" style="padding: 4rem 2rem;">
+            <div class="card-icon" style="font-size: 4rem;">📋</div>
+            <h2>Regular Check-up</h2>
+            <p style="margin-top: 0.5rem;">Enter your Patient ID to view your records and assigned doctor.</p>
+        </a>
+
+        <a href="/new_patient" class="card-link" style="padding: 4rem 2rem;">
+            <div class="card-icon" style="font-size: 4rem;">✨</div>
+            <h2>New Treatment</h2>
+            <p style="margin-top: 0.5rem;">Register for a completely new treatment flow or department.</p>
+        </a>
+
+    </div>
+    
+    <div class="mt-4">
+        <a href="/patient_portal" class="nav-link">🔙 ← Cancel and Go Back</a>
+    </div>
+</div>
+{% endblock %}

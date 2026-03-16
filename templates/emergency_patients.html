@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block title %}Emergency Patients - PremiumCare{% endblock %}
+
+{% block page_name %}Emergency Patients{% endblock %}
+
+{% block nav_links %}
+<a href="/" class="nav-link">🏠 Home</a>
+<a href="/admin_dashboard" class="nav-link">📊 Dashboard</a>
+<a href="/doctor_assigned" class="nav-link">👨‍⚕️ Doctor Assigned</a>
+<a href="/all_patients" class="nav-link">🏥 All Patients</a>
+<a href="/waitlist" class="nav-link">⏳ Waitlist</a>
+<a href="/emergency_patients" class="nav-link">🚨 Emergency Patient Details</a>
+<a href="/admin_logout" class="nav-link" style="color:#ef4444;">🚪 Logout</a>
+{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <h2 style="color: #ef4444;">Emergency Patient Details</h2>
+    <p>Log of critical care patients and their auto-allocated specialists.</p>
+</div>
+
+<div class="table-container">
+    <table>
+        <thead>
+            <tr>
+                <th>Admission Time</th>
+                <th>Patient ID</th>
+                <th>Patient Name</th>
+                <th>Condition/Dept</th>
+                <th>Assigned Specialist</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for ep in patients %}
+            <tr style="background: rgba(239, 68, 68, 0.05);">
+                <td>{{ ep.visit_datetime }}</td>
+                <td><strong>{{ ep.Patient_ID }}</strong></td>
+                <td>{{ ep.Patient_First_Initial }} {{ ep.Patient_Last_Name }}</td>
+                <td>{{ ep.Department_Referral }}</td>
+                <td>
+                    {% if ep.doctor_name %}
+                    <span style="font-weight: 600; color: #10b981;">{{ ep.doctor_name }}</span><br>
+                    <span style="font-size: 0.85rem; color: #6b7280;">{{ ep.specialization }}</span>
+                    {% else %}
+                    <span style="color: #ef4444; font-weight: bold;">Unassigned (CRITICAL)</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <span class="status-badge status-busy">Emergency Protocol Active</span>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="6" style="padding:3rem;text-align:center;">
+                    No recent emergency admissions found.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

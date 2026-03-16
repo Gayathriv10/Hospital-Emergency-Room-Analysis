@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block title %}Doctor Assigned - PremiumCare{% endblock %}
+
+{% block page_name %}Doctor Assigned{% endblock %}
+
+{% block nav_links %}
+<a href="/" class="nav-link">🏠 Home</a>
+<a href="/admin_dashboard" class="nav-link">📊 Dashboard</a>
+<a href="/doctor_assigned" class="nav-link">👨‍⚕️ Doctor Assigned</a>
+<a href="/all_patients" class="nav-link">🏥 All Patients</a>
+<a href="/waitlist" class="nav-link">⏳ Waitlist</a>
+<a href="/emergency_patients" class="nav-link">🚨 Emergency Patient Details</a>
+<a href="/admin_logout" class="nav-link" style="color:#ef4444;">🚪 Logout</a>
+{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <h2>Assigned Doctors</h2>
+    <p>Current distribution of actively assigned patients to their doctors.</p>
+</div>
+
+<div class="table-container">
+    <table style="width: 100%; min-width: 800px; display: table;">
+        <thead>
+            <tr>
+                <th>Patient ID</th>
+                <th>Patient Name</th>
+                <th>Doctor Name</th>
+                <th>Specialization</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for a in assigned %}
+            <tr>
+                <td><strong>{{ a.Patient_ID }}</strong></td>
+                <td>{{ a.Patient_First_Initial }} {{ a.Patient_Last_Name }}</td>
+                <td><span style="font-weight: 500; color: #10b981;">{{ a.doctor_name }}</span></td>
+                <td>{{ a.specialization }}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="4" style="padding:3rem;text-align:center;">
+                    No assigned doctors found.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="mt-4 text-center">
+    <a href="/admin_dashboard" class="btn btn-outline">Back to Dashboard</a>
+</div>
+{% endblock %}

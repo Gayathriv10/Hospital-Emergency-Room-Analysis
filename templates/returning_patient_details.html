@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block title %}Patient Details - PremiumCare{% endblock %}
+
+{% block page_name %}Patient Details{% endblock %}
+
+{% block nav_links %}
+<a href="/" class="nav-link">🏠 Home</a>
+<a href="/patient_portal" class="nav-link">👤 Patient Portal</a>
+<a href="/" class="nav-link" style="color: #ef4444;">🚪 Logout</a>
+{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: center; align-items: center; min-height: 70vh;">
+    <div class="glass-panel" style="width: 100%; max-width: 600px;">
+        <div class="text-center mb-4">
+            <h2>Patient Record Details</h2>
+            <p>Your current active registration with the hospital.</p>
+        </div>
+
+        <div class="grid-2 mb-4">
+            <div>
+                <p class="mb-1"><strong>Patient ID:</strong> {{ patient[0] }}</p>
+                <p class="mb-1"><strong>Patient Name:</strong> {{ patient[1] }}. {{ patient[2] }}</p>
+                <p class="mb-1"><strong>Visit Date:</strong> {{ patient[9] }}</p>
+            </div>
+            <div>
+                <p class="mb-1"><strong>Treatment Specialization:</strong> {{ patient[5] }}</p>
+                <p class="mb-1"><strong>Predicted Waittime:</strong> {{ "%.1f"|format(wait_time) }} mins</p>
+            </div>
+        </div>
+
+        <div class="alert mt-4 mb-4 text-center {% if assigned_doctor != 'None (Added to Waitlist)' and assigned_doctor != 'None Available' %}alert-success{% else %}alert-warning{% endif %}">
+            <h3 style="margin: 0; padding-bottom: 0.5rem;">Doctor Assignment Status</h3>
+            
+            {% if assigned_doctor != 'None (Added to Waitlist)' and assigned_doctor != 'None Available' %}
+                <p style="font-size: 1.2rem; color: #10b981; font-weight: bold; margin:0;">
+                    Assigned: {{ assigned_doctor }} 
+                    {% if doctor_specialization %}
+                        <span style="font-size: 0.9rem; color: #d1d5db;">({{ doctor_specialization }})</span>
+                    {% endif %}
+                </p>
+            {% else %}
+                <p style="font-size: 1.2rem; color: #d97706; font-weight: bold; margin:0;">
+                    Status: Waitlist (No Free Doctors)
+                </p>
+                <p style="margin-top: 0.5rem; font-size: 0.95rem; color: #b45309;">
+                    Predicted Wait Time: {{ "%.1f"|format(wait_time) }} mins
+                </p>
+            {% endif %}
+        </div>
+
+        <div class="text-center">
+            <a href="/patient_portal" class="btn btn-primary" style="width: 100%;">
+                Done ➔
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

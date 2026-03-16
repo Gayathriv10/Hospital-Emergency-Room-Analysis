@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block title %}Doctor Status - PremiumCare{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <h2>Doctor Availability Status</h2>
+    <p>Live status of all doctors across PremiumCare departments.</p>
+</div>
+
+<div class="glass-panel">
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Doctor Name</th>
+                    <th>Specialization</th>
+                    <th>Department</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for doc in doctors %}
+                <tr>
+                    <td><strong>{{ doc[0] }}</strong></td>
+                    <td>{{ doc[1] }}</td>
+                    <td>{{ doc[2] }}</td>
+                    <td>
+                        {% if doc[3] == 'Available' %}
+                            <span class="status-badge status-available">Available</span>
+                        {% else %}
+                            <span class="status-badge status-busy">Busy</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="4" class="text-center">No doctors found in the system.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block title %}Waitlist - PremiumCare{% endblock %}
+
+{% block page_name %}Waitlist{% endblock %}
+
+{% block nav_links %}
+<a href="/" class="nav-link">🏠 Home</a>
+<a href="/admin_dashboard" class="nav-link">📊 Dashboard</a>
+<a href="/doctor_assigned" class="nav-link">👨‍⚕️ Doctor Assigned</a>
+<a href="/all_patients" class="nav-link">🏥 All Patients</a>
+<a href="/waitlist" class="nav-link">⏳ Waitlist</a>
+<a href="/emergency_patients" class="nav-link">🚨 Emergency Patient Details</a>
+<a href="/admin_logout" class="nav-link" style="color:#ef4444;">🚪 Logout</a>
+{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <h2>Hospital Waitlist</h2>
+    <p>Patients currently awaiting doctor assignment.</p>
+</div>
+
+<div class="table-container">
+    <table>
+        <thead>
+            <tr>
+                <th>Patient ID</th>
+                <th>Patient Name</th>
+                <th>Department Req.</th>
+                <th>Registration Time</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in waitlist %}
+            <tr>
+                <td><strong>{{ p.Patient_ID }}</strong></td>
+                <td>{{ p.Patient_First_Initial }} {{ p.Patient_Last_Name }}</td>
+                <td>
+                    {% if p.Patient_Admission_Flag == 'Emergency' %}
+                    <span class="status-badge status-busy">Emergency</span>
+                    {% else %}
+                    <span class="status-badge status-available">Standard</span>
+                    {% endif %}
+                </td>
+                <td>{{ p.Department_Referral }}</td>
+                <td>{{ p.Patient_Admission_Date }}</td>
+                <td><span style="color: #ef4444; font-weight: 500;">Unassigned</span></td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="6" style="padding:3rem;text-align:center;">
+                    No patients currently on the waitlist. Great job!
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

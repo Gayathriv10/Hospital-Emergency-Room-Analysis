@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block title %}PremiumCare - Home{% endblock %}
+
+{% block page_name %}Home{% endblock %}
+
+{% block nav_links %}
+<a href="/" class="nav-link">🏠 Home</a>
+{% endblock %}
+
+{% block content %}
+<div style="height: 80vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;">
+    <h1 style="font-size: 3.5rem; margin-bottom: 1rem;">Welcome to PremiumCare</h1>
+    <p style="font-size: 1.2rem; max-width: 600px; margin-bottom: 3rem;">
+        Experience healthcare managed with precision, intelligence, and compassion.
+    </p>
+
+    <div class="grid-3" style="width: 100%; max-width: 1000px;">
+        
+        <a href="/admin_login" class="card-link" style="padding: 2rem;">
+            <div class="card-icon" style="font-size: 3rem;">🔐</div>
+            <h3>Admin Portal</h3>
+            <p style="font-size: 0.9rem; margin-top: 0.5rem;">Manage hospital operations, doctors, and patients.</p>
+        </a>
+
+        <a href="/patient_portal" class="card-link" style="padding: 2rem;">
+            <div class="card-icon" style="font-size: 3rem;">🩺</div>
+            <h3>Patient Portal</h3>
+            <p style="font-size: 0.9rem; margin-top: 0.5rem;">Register or view existing appointments and wait times.</p>
+        </a>
+
+        <a href="/smart_dashboard" class="card-link" style="padding: 2rem;">
+            <div class="card-icon" style="font-size: 3rem;">📊</div>
+            <h3>Smart Dashboard</h3>
+            <p style="font-size: 0.9rem; margin-top: 0.5rem;">View real-time hospital analytics and insights.</p>
+        </a>
+
+    </div>
+</div>
+{% endblock %}
