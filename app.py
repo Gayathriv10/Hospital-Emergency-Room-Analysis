@@ -25,8 +25,8 @@ def get_db_connection():
     try:
         conn = pyodbc.connect(
             'DRIVER={SQL Server};'
-            'SERVER=.\\SQLEXPRESS;'
-            'DATABASE=hospital_system;'
+            'SERVER=Your Server;'
+            'DATABASE="Your Database Name";'
             'Trusted_Connection=yes;'
         )
         return conn
