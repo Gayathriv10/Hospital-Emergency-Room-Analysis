@@ -20,6 +20,30 @@
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
 
 <style>
+    /* Force Light Theme Overrides */
+    body {
+        background-color: #f8fafc !important;
+        color: #1e293b !important;
+    }
+    .navbar {
+        background: #ffffff !important;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05) !important;
+        border-bottom: 1px solid #e2e8f0;
+    }
+    .nav-brand {
+        color: #0f172a !important;
+    }
+    .nav-link {
+        color: #475569 !important;
+    }
+    .nav-link:hover {
+        background: #f1f5f9 !important;
+        color: #0f172a !important;
+    }
+    h2, p {
+        color: #1e293b !important;
+    }
+
     .grid-2 {
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -53,9 +77,9 @@
 
 <div class="grid-2">
 
-    <div class="chart-container">
+    <div class="chart-container" style="grid-column: span 2; height: auto;">
         <h3>Patient Distribution by Department</h3>
-        <canvas id="deptChart"></canvas>
+        <canvas id="deptChart" style="max-width: 800px !important; max-height: 400px !important; width: 100%;"></canvas>
     </div>
 
     <div class="chart-container">
@@ -68,10 +92,6 @@
         <canvas id="admitChart"></canvas>
     </div>
 
-    <div class="chart-container">
-        <h3>Patient Satisfaction Scores</h3>
-        <canvas id="satChart"></canvas>
-    </div>
 
     <div class="chart-container">
         <h3>Doctor Availability Status</h3>
@@ -81,6 +101,12 @@
     <div class="chart-container">
         <h3>Patient Age Group Distribution</h3>
         <canvas id="ageChart"></canvas>
+    </div>
+
+    <!-- New Weekly Arrival Chart -->
+    <div class="chart-container" style="grid-column: span 2;">
+        <h3>Weekly Patient Arrivals</h3>
+        <canvas id="weeklyChart" style="max-width: 800px !important;"></canvas>
     </div>
 
 </div>
@@ -109,8 +135,10 @@
         const admitLabels = JSON.parse('{{ admit_labels|tojson|safe }}');
         const admitCounts = JSON.parse('{{ admit_counts|tojson|safe }}');
 
-        const satLabels = JSON.parse('{{ sat_labels|tojson|safe }}');
-        const satCounts = JSON.parse('{{ sat_counts|tojson|safe }}');
+
+
+        const weeklyLabels = JSON.parse('{{ weekly_labels|tojson|safe }}');
+        const weeklyCounts = JSON.parse('{{ weekly_counts|tojson|safe }}');
 
         const doctorLabels = ["Available", "Busy"];
         const doctorCounts = [12, 8];
@@ -124,21 +152,30 @@
         }
 
         new Chart(document.getElementById("deptChart"), {
-            type: "pie",
+            type: "bar",
             data: {
                 labels: deptLabels,
                 datasets: [{
+                    label: "Patients",
                     data: deptCounts,
-                    backgroundColor: colors
+                    backgroundColor: "#3b82f6",
+                    borderRadius: 4
                 }]
             },
             options: {
                 responsive: true,
                 plugins: {
+                    legend: { display: false },
                     datalabels: {
-                        color: "#fff",
-                        formatter: (value) => percentage(value, deptCounts)
+                        color: "#333",
+                        anchor: 'end',
+                        align: 'top',
+                        formatter: (value) => value > 0 ? value : ''
                     }
+                },
+                scales: { 
+                    y: { beginAtZero: true, ticks: { stepSize: 1 } },
+                    x: { ticks: { autoSkip: false, maxRotation: 45, minRotation: 45 } }
                 }
             }
         });
@@ -179,24 +216,6 @@
             }
         });
 
-        new Chart(document.getElementById("satChart"), {
-            type: "line",
-            data: {
-                labels: satLabels,
-                datasets: [{
-                    label: "Ratings",
-                    data: satCounts,
-                    borderColor: "#38bdf8",
-                    backgroundColor: "rgba(56,189,248,0.2)",
-                    fill: true,
-                    tension: 0.3
-                }]
-            },
-            options: {
-                responsive: true,
-                scales: { y: { beginAtZero: true } }
-            }
-        });
 
         new Chart(document.getElementById("doctorChart"), {
             type: "pie",
@@ -231,6 +250,28 @@
             options: {
                 responsive: true,
                 scales: { y: { beginAtZero: true } }
+            }
+        });
+
+        new Chart(document.getElementById("weeklyChart"), {
+            type: "bar",
+            data: {
+                labels: weeklyLabels,
+                datasets: [{
+                    label: "Arrivals",
+                    data: weeklyCounts,
+                    backgroundColor: "#14b8a6",
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: { 
+                    y: { 
+                        beginAtZero: true,
+                        ticks: { stepSize: 1 } 
+                    } 
+                }
             }
         });
 

@@ -29,7 +29,10 @@
                         {% if doc[3] == 'Available' %}
                             <span class="status-badge status-available">Available</span>
                         {% else %}
-                            <span class="status-badge status-busy">Busy</span>
+                            <span class="status-badge status-busy" style="margin-right: 10px;">Busy</span>
+                            <form action="/toggle_doctor_status/{{ doc[4] }}" method="POST" style="display:inline;">
+                                <button type="submit" style="padding: 4px 10px; font-size: 12px; border-radius: 6px; background: #3b82f6; color: white; border: none; cursor: pointer; transition: 0.2s;" onmouseover="this.style.background='#2563eb'" onmouseout="this.style.background='#3b82f6'">Mark Available</button>
+                            </form>
                         {% endif %}
                     </td>
                 </tr>

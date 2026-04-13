@@ -9,7 +9,7 @@ app = Flask(__name__)
 app.secret_key = "hospital_super_secret_key"
 
 # Try to load ML model
-MODEL_PATH = "waittime_model1.pkl"
+MODEL_PATH = "waittime_model2.pkl"
 model = None
 try:
     if os.path.exists(MODEL_PATH):
@@ -25,8 +25,6 @@ def get_db_connection():
     try:
         conn = pyodbc.connect(
             'DRIVER={SQL Server};'
-            'SERVER=Your_Server_Name;'
-            'DATABASE=Your_Database_name;'
             'Trusted_Connection=yes;'
         )
         return conn
@@ -94,11 +92,24 @@ def doctor_status():
     
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT doctor_name, specialization, department, availability_status FROM Doctors")
+    cursor.execute("SELECT doctor_name, specialization, department, availability_status, doctor_id FROM Doctors")
     doctors = cursor.fetchall()
     conn.close()
     
     return render_template("doctor_status.html", doctors=doctors)
+
+@app.route("/toggle_doctor_status/<int:doctor_id>", methods=["POST"])
+def toggle_doctor_status(doctor_id):
+    if not session.get('admin_logged_in'):
+        return redirect(url_for('admin_login'))
+        
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("UPDATE Doctors SET availability_status='Available' WHERE doctor_id=?", (doctor_id,))
+    conn.commit()
+    conn.close()
+        
+    return redirect(url_for('doctor_status'))
 
 @app.route("/recent_patients")
 def recent_patients():
@@ -255,17 +266,24 @@ def doctor_waitime():
     wait_map = {row[0]: row[1] for row in wait_data if row[0]}
     
     # Get all doctors and attach the predicted wait time per department
-    cursor.execute("SELECT doctor_id, doctor_name, specialization, department FROM Doctors")
+    cursor.execute("SELECT doctor_id, doctor_name, specialization, department, patients_assigned_today FROM Doctors")
     doctors_db = cursor.fetchall()
     
     doctors = []
     for doc in doctors_db:
-        predicted = wait_map.get(doc[3], 35.0) # 35 minutes default if no data
+        base_predicted = wait_map.get(doc[3], 35.0) # 35 minutes default if no data
+        doctor_id = doc[0]
+        assigned_today = doc[4] if doc[4] is not None else 0
+        
+        # Calculate doctor-specific wait time based on assignments
+        personal_wait = base_predicted + (assigned_today * 6.5) + (doctor_id % 4 * 1.5) - 3.0
+        personal_wait = max(5.0, personal_wait) # Ensure it doesn't go below realistic minimum
+        
         doctors.append({
             'doctor_name': doc[1],
             'specialization': doc[2],
             'department': doc[3],
-            'predicted_wait': predicted
+            'predicted_wait': round(personal_wait, 1)
         })
         
     conn.close()
@@ -305,7 +323,8 @@ def returning_patient():
             satisfaction = patient[9]
             is_emergency = (admission_status == "Emergency")
             
-            doctor_id, doctor_name, doctor_specialization, alert_message, doctor_status_msg, wait_time = allocate_doctor(cursor, department, age, admission_status, satisfaction, is_emergency)
+            gender = patient[4]
+            doctor_id, doctor_name, doctor_specialization, alert_message, doctor_status_msg, wait_time = allocate_doctor(cursor, department, age, gender, admission_status, satisfaction, is_emergency)
             
             # Record the visit
             cursor.execute("""
@@ -338,7 +357,7 @@ def returning_patient():
             
     return render_template("returning_patient.html")
 
-def allocate_doctor(cursor, department, age, admission_status, satisfaction, is_emergency):
+def allocate_doctor(cursor, department, age, gender, admission_status, satisfaction, is_emergency):
     assigned_doctor_id = None
     assigned_doctor_name = None
     assigned_specialization = None
@@ -379,8 +398,7 @@ def allocate_doctor(cursor, department, age, admission_status, satisfaction, is_
             assigned_doctor_name = "None (Added to Waitlist)"
             doctor_status_msg = "Not Available"
             
-            # Wipe previous waitlist records universally
-            cursor.execute("DELETE FROM Patients WHERE assigned_doctor_id IS NULL")
+            # Do not delete waitlisted patients, just proceed with wait time prediction
             
             # Predict Wait Time
             if model is not None:
@@ -388,9 +406,10 @@ def allocate_doctor(cursor, department, age, admission_status, satisfaction, is_
                 dept_encoded = dept_map.get(department, 0)
                 try:
                     is_admitted = 1 if admission_status and admission_status.lower()=='admitted' else 0
+                    gender_encoded = 1 if gender and str(gender).lower() == 'female' else 0
                     input_data = pd.DataFrame(
-                        [[int(age), is_admitted, int(satisfaction), dept_encoded]],
-                        columns=["Age", "Admission_Flag", "Satisfaction_Score", "Department"]
+                        [[int(age), gender_encoded, dept_encoded, is_admitted]],
+                        columns=["Patient_Age", "Gender_encoded", "Dept_encoded", "Patient_Admission_Flag"]
                     )
                     wait_time = float(model.predict(input_data)[0])
                 except Exception as e:
@@ -421,8 +440,11 @@ def process_patient():
     conn = get_db_connection()
     cursor = conn.cursor()
     
-    doctor_id, doctor_name, doctor_specialization, alert_message, doctor_status_msg, wait_time = allocate_doctor(cursor, department, age, admission_status, satisfaction, is_emergency)
+    doctor_id, doctor_name, doctor_specialization, alert_message, doctor_status_msg, wait_time = allocate_doctor(cursor, department, age, gender, admission_status, satisfaction, is_emergency)
                 
+    # Map admission status to BIT for the database
+    admission_status_db = 1 if admission_status in ["Admitted", "Emergency", "1", "2"] else 0
+    
     # Insert patient
     cursor.execute("""
         INSERT INTO Patients (
@@ -431,7 +453,7 @@ def process_patient():
             Patient_Admission_Flag, Patient_Satisfaction_Score, Patient_Waittime, assigned_doctor_id
         )
         VALUES (?, GETDATE(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    """, (patient_id, first_initial, last_name, gender, int(age), race, department, admission_status, int(satisfaction), wait_time, doctor_id))
+    """, (patient_id, first_initial, last_name, gender, int(age), race, department, admission_status_db, int(satisfaction), wait_time, doctor_id))
     
     # Insert into VisitHistory
     cursor.execute("""
@@ -480,11 +502,17 @@ def smart_dashboard():
     admit_labels = [row[0] if row[0] else 'Unknown' for row in admit_data]
     admit_counts = [row[1] for row in admit_data]
     
-    # Get patient satisfaction score distribution
-    cursor.execute("SELECT Patient_Satisfaction_Score, COUNT(*) FROM Patients GROUP BY Patient_Satisfaction_Score ORDER BY Patient_Satisfaction_Score")
-    sat_data = cursor.fetchall()
-    sat_labels = [f"Score {row[0]}" for row in sat_data]
-    sat_counts = [row[1] for row in sat_data]
+    
+    # Weekly Arrivals
+    cursor.execute("""
+        SELECT DATENAME(dw, visit_datetime) AS DayOfWeek, COUNT(*)
+        FROM VisitHistory
+        GROUP BY DATENAME(dw, visit_datetime), DATEPART(dw, visit_datetime)
+        ORDER BY DATEPART(dw, visit_datetime)
+    """)
+    weekly_data = cursor.fetchall()
+    weekly_labels = [row[0] if row[0] is not None else "Unknown" for row in weekly_data]
+    weekly_counts = [row[1] for row in weekly_data]
     
     conn.close()
     
@@ -495,8 +523,8 @@ def smart_dashboard():
                            wait_avgs=wait_avgs,
                            admit_labels=admit_labels,
                            admit_counts=admit_counts,
-                           sat_labels=sat_labels,
-                           sat_counts=sat_counts)
+                           weekly_labels=weekly_labels,
+                           weekly_counts=weekly_counts)
 
 # --------- CHATBOT API ---------
 @app.route("/chatbot_api", methods=["POST"])
