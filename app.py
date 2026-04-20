@@ -25,8 +25,8 @@ def get_db_connection():
     try:
         conn = pyodbc.connect(
             'DRIVER={SQL Server};'
-            'SERVER="Your Server";'
-            'DATABASE="Your Database Name";'
+            'SERVER=.\\SQLEXPRESS;'
+            'DATABASE=hospital_system;'
             'Trusted_Connection=yes;'
         )
         return conn
@@ -210,9 +210,44 @@ def waitlist():
         ORDER BY Patient_Admission_Date ASC
     """)
     waitlist_data = cursor.fetchall()
+    
+    cursor.execute("SELECT doctor_id, doctor_name, department, specialization FROM Doctors WHERE availability_status='Available' ORDER BY department")
+    available_doctors = cursor.fetchall()
+    
     conn.close()
     
-    return render_template("waitlist.html", waitlist=waitlist_data)
+    return render_template("waitlist.html", waitlist=waitlist_data, available_doctors=available_doctors)
+
+@app.route("/assign_doctor_manual", methods=["POST"])
+def assign_doctor_manual():
+    if not session.get('admin_logged_in'):
+        return redirect(url_for('admin_login'))
+        
+    patient_id = request.form.get("patient_id")
+    doctor_id = request.form.get("doctor_id")
+    
+    if not patient_id or not doctor_id:
+        return redirect(url_for('waitlist'))
+        
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    cursor.execute("SELECT Patient_Admission_Flag, Department_Referral FROM Patients WHERE Patient_ID=?", (patient_id,))
+    patient = cursor.fetchone()
+    is_emergency = 1 if patient and patient[0] else 0
+    
+    cursor.execute("UPDATE Patients SET assigned_doctor_id=? WHERE Patient_ID=?", (doctor_id, patient_id))
+    cursor.execute("UPDATE Doctors SET availability_status='Busy', patients_assigned_today = patients_assigned_today + 1 WHERE doctor_id=?", (doctor_id,))
+    
+    cursor.execute("""
+        INSERT INTO VisitHistory (Patient_ID, visit_type, emergency_flag, assigned_doctor_id, wait_time, visit_datetime)
+        VALUES (?, 'Manual Assignment', ?, ?, 15.0, GETDATE())
+    """, (patient_id, is_emergency, doctor_id))
+    
+    conn.commit()
+    conn.close()
+    
+    return redirect(url_for('waitlist'))
 
 @app.route("/emergency_patients")
 def emergency_patients():

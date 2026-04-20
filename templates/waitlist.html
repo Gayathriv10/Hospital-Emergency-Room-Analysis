@@ -26,9 +26,11 @@
             <tr>
                 <th>Patient ID</th>
                 <th>Patient Name</th>
+                <th>Priority</th>
                 <th>Department Req.</th>
                 <th>Registration Time</th>
                 <th>Status</th>
+                <th>Assign</th>
             </tr>
         </thead>
         <tbody>
@@ -37,19 +39,31 @@
                 <td><strong>{{ p.Patient_ID }}</strong></td>
                 <td>{{ p.Patient_First_Initial }} {{ p.Patient_Last_Name }}</td>
                 <td>
-                    {% if p.Patient_Admission_Flag == 'Emergency' %}
-                    <span class="status-badge status-busy">Emergency</span>
+                    {% if p.Patient_Admission_Flag == 1 or p.Patient_Admission_Flag == True %}
+                    <span class="status-badge status-busy" style="background:#fecaca; color:#ef4444; padding:2px 6px; border-radius:4px; font-size:12px;">Emergency</span>
                     {% else %}
-                    <span class="status-badge status-available">Standard</span>
+                    <span class="status-badge status-available" style="background:#bbf7d0; color:#22c55e; padding:2px 6px; border-radius:4px; font-size:12px;">Standard</span>
                     {% endif %}
                 </td>
                 <td>{{ p.Department_Referral }}</td>
                 <td>{{ p.Patient_Admission_Date }}</td>
                 <td><span style="color: #ef4444; font-weight: 500;">Unassigned</span></td>
+                <td>
+                    <form action="/assign_doctor_manual" method="POST" style="margin: 0; display: flex; align-items: center; gap: 5px;">
+                        <input type="hidden" name="patient_id" value="{{ p.Patient_ID }}">
+                        <select name="doctor_id" required style="padding: 4px; border-radius: 4px; border: 1px solid #ccc; max-width: 150px; font-size: 12px; height: 26px;">
+                            <option value="">Select Doctor...</option>
+                            {% for doc in available_doctors %}
+                            <option value="{{ doc.doctor_id }}">{{ doc.doctor_name }} ({{ doc.department }} - {{ doc.specialization }})</option>
+                            {% endfor %}
+                        </select>
+                        <button type="submit" style="padding: 4px 8px; background: #3b82f6; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; height: 26px;">Assign</button>
+                    </form>
+                </td>
             </tr>
             {% else %}
             <tr>
-                <td colspan="6" style="padding:3rem;text-align:center;">
+                <td colspan="7" style="padding:3rem;text-align:center;">
                     No patients currently on the waitlist. Great job!
                 </td>
             </tr>
