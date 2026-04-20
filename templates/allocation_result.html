@@ -43,6 +43,9 @@
                 <h4 style="color: var(--text-muted); margin-bottom: 0.5rem;">Estimated Wait Time</h4>
                 {% if wait_time > 0 %}
                     <p style="font-size: 1.2rem; font-weight: bold; color: #fca5a5; margin: 0;">~{{ wait_time }} mins</p>
+                    {% if doctor_status_msg == 'Not Available' %}
+                        <p style="font-size: 0.9rem; color: #fbbf24; margin-top: 0.5rem;">Due to doctor unavailability, the system has predicted your wait time. You have been added to the waitlist.</p>
+                    {% endif %}
                 {% else %}
                     <p style="font-size: 1.2rem; font-weight: bold; color: #6ee7b7; margin: 0;">0 mins</p>
                 {% endif %}

@@ -439,14 +439,22 @@ def allocate_doctor(cursor, department, age, gender, admission_status, satisfact
             
             # Predict Wait Time
             if model is not None:
-                dept_map = {"Cardiology":1, "Orthopedics":2, "Neurology":3, "Emergency":4, "General Medicine": 5, "Gynecology": 6, "Pediatrics": 7, "Oncology": 8}
-                dept_encoded = dept_map.get(department, 0)
+                dept_map = {
+                    "Cardiology":1, "Orthopedics":2, "Neurology":3, "Emergency":4, 
+                    "General Medicine": 5, "Gynecology": 6, "Pediatrics": 7, "Oncology": 8,
+                    "Emergency Trauma": 4, "Dermatology": 9, "ENT": 10, "Radiology": 11,
+                    "Nephrology": 12, "Urology": 13, "Gastroenterology": 14, "Pulmonology": 15,
+                    "Endocrinology": 16, "Psychiatry": 17, "Ophthalmology": 18, "Hematology": 19,
+                    "Plastic Surgery": 20, "Anesthesiology": 21, "Rheumatology": 22,
+                    "Infectious Diseases": 23, "Geriatrics": 24, "Rehabilitation Medicine": 25
+                }
+                dept_encoded = dept_map.get(department, 5) # Default out to General Medicine
                 try:
                     is_admitted = 1 if admission_status and admission_status.lower()=='admitted' else 0
                     gender_encoded = 1 if gender and str(gender).lower() == 'female' else 0
                     input_data = pd.DataFrame(
                         [[int(age), gender_encoded, dept_encoded, is_admitted]],
-                        columns=["Patient_Age", "Gender_encoded", "Dept_encoded", "Patient_Admission_Flag"]
+                        columns=["Patient_Age", "Gender_encoded", "Dept_encoded", "Patient_Admission_Flag_enc"]
                     )
                     wait_time = float(model.predict(input_data)[0])
                 except Exception as e:
